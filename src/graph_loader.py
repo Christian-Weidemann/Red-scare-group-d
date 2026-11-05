@@ -14,6 +14,12 @@ from pathlib import Path
 # <project>/src/load_graph.py -> <project>/problem_and_data/data
 DATA_DIR = Path(__file__).resolve().parent.parent / "problem_and_data" / "data"
 
+GRAPH_TYPE_PREFIXES = {'Common word':'common', 'Rusty word': 'rusty', 
+                       'Grids':'grid', 
+                       'Walls': 'wall', 
+                       'Random':['smallworld', 'gnm', 'bht'],
+                       'Increasing numbers': 'increase'}
+DEFAULT_TYPE = 'Individual'   # any file that matches no prefix
 
 @dataclass
 class Graph:
@@ -25,6 +31,7 @@ class Graph:
     adj: list[list[int]]             # out-neighbours (both ways for "--")
     edges: list[tuple[int, int, bool]] = field(default_factory=list)  # (u, v, directed)
     directed: bool = False           # True if any edge is "->"
+    file_path: str = ''
 
     @property
     def n(self) -> int:
@@ -74,12 +81,27 @@ def load_graph(path: str | Path) -> Graph:
     if len(red) != r:
         raise ValueError(f"{path}: header says r={r}, found {len(red)} vertices in R")
 
-    return Graph(names, index, red, index[s_name], index[t_name], adj, edges, directed)
+    return Graph(names, index, red, index[s_name], index[t_name], adj, edges, directed, str(path))
 
 
 def load_all(folder: str | Path = DATA_DIR) -> dict[str, Graph]:
     """Load every .txt file in the folder, keyed by file name."""
     return {p.name: load_graph(p) for p in sorted(Path(folder).glob("*.txt"))}
+
+
+def graph_type_of(path: str | Path) -> str:
+    prefix = Path(path).stem.split('-')[0]
+    for graph_type, prefixes in GRAPH_TYPE_PREFIXES.items():
+        if prefix in prefixes:
+            return graph_type
+    return DEFAULT_TYPE
+
+def load_graph_types(folder: str | Path = DATA_DIR) -> dict[str, list[Graph]]:
+    """Load every .txt file in the folder, grouped by graph type."""
+    graphs_by_type = {t: [] for t in [DEFAULT_TYPE, *GRAPH_TYPE_PREFIXES]}
+    for p in sorted(Path(folder).glob("*.txt")):
+        graphs_by_type[graph_type_of(p)].append(load_graph(p))
+    return graphs_by_type
 
 
 if __name__ == "__main__":
