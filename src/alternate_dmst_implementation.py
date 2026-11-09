@@ -24,10 +24,10 @@ for filename, graph in graphs.items():
     reds = graph.red
     result = bfs(graph,reds)
     if result == True:
-        print('true')
+        print(f"graph {filename} has alternating path: true")
         true_count += 1
     else:
-        print('false')
+        print(f"graph {filename} has NO alternating path: false")
         false_count +=1
 print(f"number of paths that can be reached when alternating colors {true_count}")
 print(f"number of paths that can NOT be reached when alternating colors {false_count}")
