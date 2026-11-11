@@ -1,4 +1,4 @@
-
+import heapq
 
 from collections import deque
 
@@ -40,6 +40,40 @@ def bfs(graph, S, par, dist):
                 
                 # Insert the neighbouring node to the queue
                 q.append(neighbour)
+
+
+def dijkstra(adj, src):
+    V = len(adj)
+
+    # Min-heap storing {distance, vertex}
+    pq = []
+
+    # Initialize distances to infinity
+    dist = [float('inf')] * V
+
+    # Distance from source to itself is 0
+    dist[src] = 0
+    heapq.heappush(pq, (0, src))
+
+    while pq:
+
+        d, u = heapq.heappop(pq)
+
+        # Skip outdated entries
+        if d > dist[u]:
+            continue
+
+        # Traverse adjacent vertices
+        for x in adj[u]:
+            v = x[0]
+            weight = x[1]
+
+            # Update distance if a shorter path is found
+            if dist[v] > d + weight:
+                dist[v] = d + weight
+                heapq.heappush(pq, (dist[v], v))
+
+    return dist
 
 
 def printShortestDistance(graph):
