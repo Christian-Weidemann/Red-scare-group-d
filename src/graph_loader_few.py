@@ -10,7 +10,7 @@
 """
 from dataclasses import dataclass, field
 from pathlib import Path
-import search_and_path_algorithms as spa
+#import search_and_path_algorithms as spa
 
 # <project>/src/load_graph.py -> <project>/problem_and_data/data
 DATA_DIR = Path(__file__).resolve().parent.parent / "problem_and_data" / "data"
