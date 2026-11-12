@@ -1,13 +1,14 @@
 """Load graph files of the form:
 
-    n m r
-    s t
-    <n vertex lines>   (names in R end with " *")
-    <m edge lines>     ("u -- v" undirected, "u -> v" directed)
+n m r
+s t
+<n vertex lines>   (names in R end with " *")
+<m edge lines>     ("u -- v" undirected, "u -> v" directed)
 
-    AI usage:
-    - Created by Claude (Anthropic) in november 2026
+AI usage:
+- Created by Claude (Anthropic) in november 2026
 """
+
 from dataclasses import dataclass, field
 from pathlib import Path
 #import search_and_path_algorithms as spa
@@ -15,24 +16,32 @@ from pathlib import Path
 # <project>/src/load_graph.py -> <project>/problem_and_data/data
 DATA_DIR = Path(__file__).resolve().parent.parent / "problem_and_data" / "data"
 
-GRAPH_TYPE_PREFIXES = {'Common word':'common', 'Rusty word': 'rusty', 
-                       'Grids':'grid', 
-                       'Walls': 'wall', 
-                       'Random':['smallworld', 'gnm', 'bht'],
-                       'Increasing numbers': 'increase'}
-DEFAULT_TYPE = 'Individual'   # any file that matches no prefix
+GRAPH_TYPE_PREFIXES = {
+    "Common word": "common",
+    "Rusty word": "rusty",
+    "Grids": "grid",
+    "Walls": "wall",
+    "Random": ["smallworld", "gnm", "bht"],
+    "Increasing numbers": "increase",
+}
+DEFAULT_TYPE = "Individual"  # any file that matches no prefix
+
 
 @dataclass
 class Graph:
-    names: list[str]                 # index -> vertex name
-    index: dict[str, int]            # vertex name -> index
-    red: set[int]                    # indices of vertices in R
+    names: list[str]  # index -> vertex name
+    index: dict[str, int]  # vertex name -> index
+    red: set[int]  # indices of vertices in R
     s: int
     t: int
-    adj: list[list[tuple[int, int]]]             # out-neighbours (both ways for "--"), each tuple is (neighbor_index, weight)
-    edges: list[tuple[int, int, bool]] = field(default_factory=list)  # (u, v, directed, weight)
-    directed: bool = False           # True if any edge is "->"
-    file_path: str = ''
+    adj: list[
+        list[tuple[int, int]]
+    ]  # out-neighbours (both ways for "--"), each tuple is (neighbor_index, weight)
+    edges: list[tuple[int, int, bool]] = field(
+        default_factory=list
+    )  # (u, v, directed, weight)
+    directed: bool = False  # True if any edge is "->"
+    file_path: str = ""
 
     @property
     def n(self) -> int:
@@ -45,7 +54,7 @@ class Graph:
 
 def load_graph(path: str | Path) -> Graph:
     lines = [ln.strip() for ln in Path(path).read_text().splitlines()]
-    lines = [ln for ln in lines if ln]          # skip blank lines
+    lines = [ln for ln in lines if ln]  # skip blank lines
     it = iter(lines)
 
     n, m, r = map(int, next(it).split())
@@ -96,7 +105,9 @@ def load_graph(path: str | Path) -> Graph:
     if len(red) != r:
         raise ValueError(f"{path}: header says r={r}, found {len(red)} vertices in R")
 
-    return Graph(names, index, red, index[s_name], index[t_name], adj, edges, directed, str(path))
+    return Graph(
+        names, index, red, index[s_name], index[t_name], adj, edges, directed, str(path)
+    )
 
 
 def load_all(folder: str | Path = DATA_DIR) -> dict[str, Graph]:
@@ -105,11 +116,12 @@ def load_all(folder: str | Path = DATA_DIR) -> dict[str, Graph]:
 
 
 def graph_type_of(path: str | Path) -> str:
-    prefix = Path(path).stem.split('-')[0]
+    prefix = Path(path).stem.split("-")[0]
     for graph_type, prefixes in GRAPH_TYPE_PREFIXES.items():
         if prefix in prefixes:
             return graph_type
     return DEFAULT_TYPE
+
 
 def load_graph_types(folder: str | Path = DATA_DIR) -> dict[str, list[Graph]]:
     """Load every .txt file in the folder, grouped by graph type."""
@@ -121,12 +133,14 @@ def load_graph_types(folder: str | Path = DATA_DIR) -> dict[str, list[Graph]]:
 
 if __name__ == "__main__":
     import sys
+
     target = Path(sys.argv[1]) if len(sys.argv) > 1 else DATA_DIR
     files = [target] if target.is_file() else sorted(target.glob("*.txt"))
     if not files:
         print(f"No .txt files found in {target}")
     for p in files:
         g = load_graph(p)
-        print(f"{p.name}: n={g.n} m={g.m} |R|={len(g.red)} "
-              f"s={g.names[g.s]} t={g.names[g.t]} directed={g.directed}")
-    
+        print(
+            f"{p.name}: n={g.n} m={g.m} |R|={len(g.red)} "
+            f"s={g.names[g.s]} t={g.names[g.t]} directed={g.directed}"
+        )
