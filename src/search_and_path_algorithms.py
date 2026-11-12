@@ -49,11 +49,19 @@ def printShortestDistance(graph):
     Source: https://www.geeksforgeeks.org/dsa/shortest-path-unweighted-graph/
     """
 
+    start_ind = graph.index[graph.names[graph.s]]
+    target_ind = graph.index[graph.names[graph.t]]
+
+    if start_ind in graph.red or target_ind in graph.red:
+        print(-1)
+        return 
+
     S = graph.s
     D = graph.t
     V = graph.n
 
     graph = graph.adj
+
 
     # par[] array stores the parent of nodes
     par = [-1] * V
@@ -66,7 +74,7 @@ def printShortestDistance(graph):
     bfs(graph, S, par, dist)
 
     if dist[D] == 1e9:
-        print("Source and Destination are not connected")
+        print("-1")
         return
 
     # vector path stores the shortest path
