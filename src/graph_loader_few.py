@@ -29,8 +29,8 @@ class Graph:
     red: set[int]                    # indices of vertices in R
     s: int
     t: int
-    adj: list[list[int]]             # out-neighbours (both ways for "--")
-    edges: list[tuple[int, int, bool, int]] = field(default_factory=list)  # (u, v, directed, weight)
+    adj: list[list[tuple[int, int]]]             # out-neighbours (both ways for "--"), each tuple is (neighbor_index, weight)
+    edges: list[tuple[int, int, bool]] = field(default_factory=list)  # (u, v, directed, weight)
     directed: bool = False           # True if any edge is "->"
     file_path: str = ''
 
@@ -60,7 +60,7 @@ def load_graph(path: str | Path) -> Graph:
             red_names.add(parts[0])
 
     index = {name: i for i, name in enumerate(names)}
-    adj: list[list[int]] = [[] for _ in range(n)]
+    adj: list[list[tuple[int, int]]] = [[] for _ in range(n)]
     edges: list[tuple[int, int, bool]] = []
     directed = False
 
@@ -68,27 +68,27 @@ def load_graph(path: str | Path) -> Graph:
         u_name, op, v_name = next(it).split()
         u, v = index[u_name], index[v_name]
         if op == "->":
-            if v in red_names:
-                adj[u].append(v)
-                edges.append((u, v, True, 1))
+            if v_name in red_names:
+                adj[u].append((v, 1))
+                edges.append((u, v, True))
                 directed = True
             else:
-                adj[u].append(v)
-                edges.append((u, v, True, 0))
+                adj[u].append((v, 0))
+                edges.append((u, v, True))
                 directed = True
         elif op == "--":
-            if u in red_names and v in red_names:
-                adj[u].append(v)
-                adj[v].append(u)
-                edges.append((u, v, False, 2))
-            elif u in red_names or v in red_names:
-                adj[u].append(v)
-                adj[v].append(u)
-                edges.append((u, v, False, 1))
+            if u_name in red_names and v_name in red_names:
+                adj[u].append((v, 2))
+                adj[v].append((u, 2))
+                edges.append((u, v, False))
+            elif u_name in red_names or v_name in red_names:
+                adj[u].append((v, 1))
+                adj[v].append((u, 1))
+                edges.append((u, v, False))
             else:
-                adj[u].append(v)
-                adj[v].append(u)
-                edges.append((u, v, False, 0))
+                adj[u].append((v, 0))
+                adj[v].append((u, 0))
+                edges.append((u, v, False))
         else:
             raise ValueError(f"Unknown edge operator {op!r} in {path}")
 
@@ -129,4 +129,4 @@ if __name__ == "__main__":
         g = load_graph(p)
         print(f"{p.name}: n={g.n} m={g.m} |R|={len(g.red)} "
               f"s={g.names[g.s]} t={g.names[g.t]} directed={g.directed}")
-    spa = spa.Dijkstra(g.adj, g.s)
+    
