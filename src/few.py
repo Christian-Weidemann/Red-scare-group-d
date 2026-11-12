@@ -24,10 +24,10 @@ if __name__ == "__main__":
         g = glf.load_graph(p)
         print(f"{p.name}: n={g.n} m={g.m} |R|={len(g.red)} "
               f"s={g.names[g.s]} t={g.names[g.t]} directed={g.directed}")
-    print(g.adj[0])
-    print(g.adj[0][0])
-    print(g.adj[0][0][0])
-    distances = spa.dijkstra(g.edges, g.s)
+    #print(g.adj)
+    #print(g.adj[0][0])
+    #print(g.adj[0][0][0])
+    distances = spa.dijkstra(g.adj, g.s)
     cost = distances[g.t]/2
     print(f"Shortest path cost: {cost}")
     

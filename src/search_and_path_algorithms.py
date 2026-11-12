@@ -64,16 +64,13 @@ def dijkstra(adj, src):
             continue
 
         # Traverse adjacent vertices
-        for x in adj[u]:
-            print(f"u={u}, x={x}, d={d}, dist={dist}")
-            for x_data in x:
-                v = x_data[0]
-                weight = x_data[1]
-                print(f"u={u}, v={v}, weight={weight}, d={d}, dist={dist}")
-                # Update distance if a shorter path is found
-                if dist[v] > d + weight:
-                    dist[v] = d + weight
-                    heapq.heappush(pq, (dist[v], v))
+        for x in adj[u]:            
+            v = x[0]
+            weight = x[1]
+            # Update distance if a shorter path is found
+            if dist[v] > d + weight:
+                dist[v] = d + weight
+                heapq.heappush(pq, (dist[v], v))
 
     return dist
 
