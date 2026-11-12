@@ -1,4 +1,4 @@
-
+import heapq
 
 from collections import deque
 
@@ -42,6 +42,39 @@ def bfs(graph, S, par, dist):
                 q.append(neighbour)
 
 
+def dijkstra(adj, src):
+    V = len(adj)
+
+    # Min-heap storing {distance, vertex}
+    pq = []
+
+    # Initialize distances to infinity
+    dist = [float('inf')] * V
+
+    # Distance from source to itself is 0
+    dist[src] = 0
+    heapq.heappush(pq, (0, src))
+
+    while pq:
+
+        d, u = heapq.heappop(pq)
+
+        # Skip outdated entries
+        if d > dist[u]:
+            continue
+
+        # Traverse adjacent vertices
+        for x in adj[u]:            
+            v = x[0]
+            weight = x[1]
+            # Update distance if a shorter path is found
+            if dist[v] > d + weight:
+                dist[v] = d + weight
+                heapq.heappush(pq, (dist[v], v))
+
+    return dist
+
+
 def printShortestDistance(graph):
     """
     # Function to print the shortest distance between source
@@ -49,11 +82,18 @@ def printShortestDistance(graph):
     Source: https://www.geeksforgeeks.org/dsa/shortest-path-unweighted-graph/
     """
 
+    start_ind = graph.index[graph.names[graph.s]]
+    target_ind = graph.index[graph.names[graph.t]]
+
+    if start_ind in graph.red or target_ind in graph.red:
+        return -1
+
     S = graph.s
     D = graph.t
     V = graph.n
 
     graph = graph.adj
+
 
     # par[] array stores the parent of nodes
     par = [-1] * V
@@ -66,8 +106,7 @@ def printShortestDistance(graph):
     bfs(graph, S, par, dist)
 
     if dist[D] == 1e9:
-        print("Source and Destination are not connected")
-        return
+        return -1
 
     # vector path stores the shortest path
     path = []
@@ -77,6 +116,4 @@ def printShortestDistance(graph):
         path.append(par[currentNode])
         currentNode = par[currentNode]
 
-    # printing path from source to destination
-    for i in range(len(path)-1, -1, -1):
-        print(path[i], end=" ")
+    return len(path)
