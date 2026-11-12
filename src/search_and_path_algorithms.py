@@ -53,8 +53,7 @@ def printShortestDistance(graph):
     target_ind = graph.index[graph.names[graph.t]]
 
     if start_ind in graph.red or target_ind in graph.red:
-        print(-1)
-        return 
+        return -1
 
     S = graph.s
     D = graph.t
@@ -74,8 +73,7 @@ def printShortestDistance(graph):
     bfs(graph, S, par, dist)
 
     if dist[D] == 1e9:
-        print("-1")
-        return
+        return -1
 
     # vector path stores the shortest path
     path = []
@@ -85,6 +83,4 @@ def printShortestDistance(graph):
         path.append(par[currentNode])
         currentNode = par[currentNode]
 
-    # printing path from source to destination
-    for i in range(len(path)-1, -1, -1):
-        print(path[i], end=" ")
+    return len(path)
