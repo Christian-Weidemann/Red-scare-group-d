@@ -40,6 +40,11 @@ def solve_undirected(g: Graph, valid_red: set[int]) -> bool:
 
 def solve_directed(g: Graph, valid_red: set[int]) -> bool:
     """Look through all the paths and check if there is one containing a red node"""
+    
+    return "?!"
+
+    # Brute force solution
+    """
     G = nx.DiGraph()
     for u, v, _ in g.edges:
         G.add_edge(u, v)
@@ -48,7 +53,7 @@ def solve_directed(g: Graph, valid_red: set[int]) -> bool:
         if any(v in g.red for v in path):
             return True
     return False 
-
+    """
 
 def has_some_red_path(g: Graph) -> bool:
     "Return True if a simple path from s to t contains at least one red vertex."
@@ -95,7 +100,9 @@ if __name__ == "__main__":
 
     # Load results file for to use previous problem solutions
     file_path = Path(__file__).resolve().parent.parent / "results.txt"
-    results = pd.read_csv(file_path)
+    # Use the unnamed first column as the index so it is written back unchanged
+    results = pd.read_csv(file_path, index_col=0)
+    results.index.name = None
     counter = 0
     counter_d = 0
 
@@ -111,13 +118,9 @@ if __name__ == "__main__":
             graph_path = DATA_DIR / row['filename']
             graph = load_graph(graph_path)
             print(row['filename'])
-            if graph.directed:
-                counter_d += 1
-                counter += 1
-
             results.at[index, "Some"] = has_some_red_path(graph)
         
         
-    results.to_csv(file_path, index=False)
-    print(counter_d, counter)
+    results.to_csv(file_path)
+
 
