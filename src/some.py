@@ -1,0 +1,123 @@
+from graph_loader import DATA_DIR, Graph, load_graph
+import networkx as nx
+from collections import deque
+import pandas as pd 
+from pathlib import Path
+
+def bfs_reachable(adj: list[list[int]], start: int, blocked: set[int] = frozenset()) -> set[int]:
+    """Return all the vertices that are reachable from the start vertex"""
+    if start in blocked:
+        return set()
+    visited = {start}
+    queue = deque([start])
+    while queue:
+        u = queue.popleft()
+        for v in adj[u]:
+            if v not in visited and v not in blocked:
+                visited.add(v)
+                queue.append(v)
+    return visited
+
+
+def solve_undirected(g: Graph, valid_red: set[int]) -> bool:
+    """Try to find two node disjoint paths from r -> s and r -> t"""
+    G = nx.Graph()
+    for u, v, _ in g.edges:
+        G.add_edge(u, v)
+
+    SUPER = -1
+    G.add_edge(g.s, SUPER)
+    G.add_edge(g.t, SUPER)
+
+    H = nx.algorithms.connectivity.build_auxiliary_node_connectivity(G)
+    R = nx.algorithms.flow.build_residual_network(H, "capacity")
+
+    for r in valid_red:
+        paths = nx.node_disjoint_paths(G, r, SUPER, cutoff=2, auxiliary=H, residual=R)
+        if sum(1 for _ in paths) == 2:
+            return True
+    return False
+
+def solve_directed(g: Graph, valid_red: set[int]) -> bool:
+    """Look through all the paths and check if there is one containing a red node"""
+    G = nx.DiGraph()
+    for u, v, _ in g.edges:
+        G.add_edge(u, v)
+
+    for path in nx.all_simple_paths(G, g.s, g.t):
+        if any(v in g.red for v in path):
+            return True
+    return False 
+
+
+def has_some_red_path(g: Graph) -> bool:
+    "Return True if a simple path from s to t contains at least one red vertex."
+    
+    num_of_d = 0
+    num_of_ud = 0
+
+    # Check if s and t are the same
+    if g.s == g.t:
+        return g.s in g.red
+
+    # Check all the nodes that are reachable from s
+    from_s = bfs_reachable(g.adj, g.s)
+    if g.t not in from_s:
+        return False
+
+    # Check if start or end node red
+    if g.s in g.red or g.t in g.red:
+        return True
+
+    # Check all the nodes that are reachable from t
+    rev_adj = [[] for _ in range(g.n)]
+    for u in range(g.n):
+        for v in g.adj[u]:
+            rev_adj[v].append(u)
+    to_t = bfs_reachable(rev_adj, g.t)
+
+    # Create a set of all red nodes that are both reachable from s and t
+    valid_red = g.red & from_s & to_t 
+    if not valid_red:
+        return False
+
+
+    # Solve for undirected
+    if not g.directed:
+        return solve_undirected(g, valid_red)
+    
+    # Solve for directed
+    else:
+        return solve_directed(g, valid_red)
+
+
+if __name__ == "__main__":
+
+    # Load results file for to use previous problem solutions
+    file_path = Path(__file__).resolve().parent.parent / "results.txt"
+    results = pd.read_csv(file_path)
+    counter = 0
+    counter_d = 0
+
+    results["Some"] = None
+    for index, row in results.iterrows():
+        # Check if there exists a solution in Alternate or Few
+        if row["Alternate"] or (row["Few"] > 0):
+            results.at[index, "Some"] = True
+            counter += 1
+        
+        else:
+            # If there is no solution run the algorithm for some 
+            graph_path = DATA_DIR / row['filename']
+            graph = load_graph(graph_path)
+            print(row['filename'])
+            if graph.directed:
+                counter_d += 1
+                counter += 1
+
+            results.at[index, "Some"] = has_some_red_path(graph)
+        
+        
+    results.to_csv(file_path, index=False)
+    print(counter_d, counter)
+
