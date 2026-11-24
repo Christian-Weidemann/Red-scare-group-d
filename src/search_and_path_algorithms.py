@@ -85,12 +85,6 @@ def printShortestDistance(graph):
     Source: https://www.geeksforgeeks.org/dsa/shortest-path-unweighted-graph/
     """
 
-    start_ind = graph.index[graph.names[graph.s]]
-    target_ind = graph.index[graph.names[graph.t]]
-
-    if start_ind in graph.red or target_ind in graph.red:
-        return -1
-
     S = graph.s
     D = graph.t
     V = graph.n
@@ -118,4 +112,4 @@ def printShortestDistance(graph):
         path.append(par[currentNode])
         currentNode = par[currentNode]
 
-    return len(path)
+    return len(path)-1
