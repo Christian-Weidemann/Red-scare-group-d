@@ -26,7 +26,11 @@ for filename, graph in graphs.items():
     reds = graph.red
     result = bfs(graph,reds)
     results_list.append([filename,result])
-    print(f"{filename}, {result}")
+    #print(f"{filename}, {result}")
+with open("../results_alternate.txt", "w") as file:
+    file.write("Filename, Alternate\n")
+    for filename, result in results_list:
+        file.write(f"{filename}, {result}\n")
 #    if result == True:
         #print(f"graph {filename} has alternating path: true")
 #        true_count += 1
