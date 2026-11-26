@@ -18,15 +18,16 @@ def bfs(graph, reds):
     return False
 
 
-graphs = load_all()
-true_count = 0
-false_count = 0
-results_list = []
-for filename, graph in graphs.items():
-    reds = graph.red
-    result = bfs(graph,reds)
-    results_list.append([filename,result])
-    print(f"{filename}, {result}")
+if __name__ == "__main__":
+    graphs = load_all()
+    true_count = 0
+    false_count = 0
+    results_list = []
+    for filename, graph in graphs.items():
+        reds = graph.red
+        result = bfs(graph,reds)
+        results_list.append([filename,result])
+        print(f"{filename}, {result}")
 #    if result == True:
         #print(f"graph {filename} has alternating path: true")
 #        true_count += 1

@@ -15,6 +15,17 @@ GRAPH_TYPE_PREFIXES = {
 }
 DEFAULT_TYPE = "Individual"  # any file that matches no prefix
 
+
+def few_cost(g) -> int:
+    """Fewest red vertices on an s-t path (g from graph_loader_few), or -1 if t is unreachable."""
+    distances = spa.dijkstra(g.adj, g.s)
+    if g.s in g.red and g.t in g.red:
+        cost = distances[g.t] / 2 + 1
+    else:
+        cost = distances[g.t] / 2
+    return round(cost) if cost != float("inf") else -1
+
+
 if __name__ == "__main__":
     import sys
 
@@ -24,19 +35,8 @@ if __name__ == "__main__":
     if not files:
         print(f"No .txt files found in {target}")
     for p in files:
-        g = glf.load_graph(p)
-        distances = spa.dijkstra(g.adj, g.s)
-        if g.s in g.red and g.t in g.red:
-            cost = distances[g.t] / 2 + 1
-        else:
-            cost = distances[g.t] / 2
-
-        if cost != float("inf"):
-            cost = round(cost)
-        else:
-            cost = -1
-        # print(f"{p.name}: c = {cost} ")
-        row = pd.DataFrame([{"Name": p.name, "cost": round(cost)}])
+        cost = few_cost(glf.load_graph(p))
+        row = pd.DataFrame([{"Name": p.name, "cost": cost}])
         df = pd.concat([df, row], ignore_index=True)
     df.to_csv("result_few.csv")
     # print(g.adj)
