@@ -28,9 +28,9 @@ for filename, graph in graphs.items():
     results_list.append([filename,result])
     #print(f"{filename}, {result}")
 with open("../results_alternate.txt", "w") as file:
-    file.write("Filename, Alternate")
+    file.write("Filename,Alternate\n")
     for filename, result in results_list:
-        file.write(f"{filename}, {result}")
+        file.write(f"{filename},{result}\n")
 #    if result == True:
         #print(f"graph {filename} has alternating path: true")
 #        true_count += 1
