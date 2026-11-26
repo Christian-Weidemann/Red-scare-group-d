@@ -28,6 +28,7 @@ if __name__ == "__main__":
         result = bfs(graph,reds)
         results_list.append([filename,result])
         print(f"{filename}, {result}")
+
 #    if result == True:
         #print(f"graph {filename} has alternating path: true")
 #        true_count += 1
